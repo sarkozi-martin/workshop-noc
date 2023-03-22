@@ -1,0 +1,48 @@
+POST http://localhost:8080/maze/process-definition/key/my-project-process/start
+Accept: application/json
+Content-Type: application/json
+
+> {%
+
+    client.global.set("currentProcessId", response.body.id)
+%}
+
+### Get Task for processInstanceId
+POST http://localhost:8080/maze/task
+Content-Type: application/json
+Accept: application/json
+Cache-Control: no-cache
+
+{
+  "processInstanceId": "{{currentProcessId}}"
+}
+> {%
+    client.global.set("currentTaskId", response.body[0].id)
+%}
+
+
+### Get local variables
+GET http://localhost:8080/maze/task/{{currentTaskId}}/localVariables?deserializeValues=false
+Content-Type: application/json
+Accept: application/json
+Cache-Control: no-cache
+
+
+### Completes UT Get Name
+POST http://localhost:8080/maze/task/{{currentTaskId}}/complete
+Content-Type: application/json
+Accept: application/json
+Cache-Control: no-cache
+
+{
+  "variables": {
+    "name": {
+      "value": "tester",
+      "type": "String"
+    },
+    "forceShutdown": {
+      "value": "false",
+      "type": "Boolean"
+    }
+  }
+}
